@@ -208,6 +208,32 @@ void Predictor::parse(string path)
     cout << "Parsing: " << static_cast<double>(end - begin) / CLOCKS_PER_SEC << "s" << endl;
 }
 
+void Predictor::countNumOfAppearenceNegativeOrPositive(unsigned i, unsigned j,
+                                     int begin, int step,
+                                     int** clause_num_appear_positive,
+                                     int** clause_num_appear_negative)
+{
+    for (int k = begin; k < begin+step; k++)
+    {
+        if (formula[i][j] > 0)
+        {
+            clause_num_appear_positive[abs(formula[i][j])-1][abs(formula[i][k])-1]++;
+            if(formula[i][k] > 0)
+                clause_num_appear_positive[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+            else
+                clause_num_appear_negative[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+        }
+        else
+        {
+            clause_num_appear_negative[abs(formula[i][j])-1][abs(formula[i][k])-1]++;
+            if (formula[i][k] < 0)
+                clause_num_appear_negative[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+            else
+                clause_num_appear_positive[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+        }
+    }
+}
+
 void Predictor::initializeStatistics()
 {
     clock_t begin = clock(), end;
@@ -267,7 +293,7 @@ void Predictor::initializeStatistics()
     {
         int numOfPositiveAppereance = 0, positiveVariable = 0;
 
-        for (int j = 0; j < formulaLength[i]; j++)
+        for (unsigned j = 0; j < formulaLength[i]; j++)
         {
             //check if it's horn clause
             if (formula[i][j] > 0)
@@ -277,25 +303,61 @@ void Predictor::initializeStatistics()
             }
 
             //time consuming part - statistics second part
-            for (int k = j+1; k < formulaLength[i]; k++)
+            int step = (formulaLength[i] - (j+1)) / NUM_OF_THREADS;
+            int begin = j+1;
+            std::vector<std::thread> threads;
+
+            for (unsigned iterator = 0; iterator < NUM_OF_THREADS - 1; ++iterator)
             {
-                if (formula[i][j] > 0)
-                {
-                    clause_num_appear_positive[abs(formula[i][j])-1][abs(formula[i][k])-1]++;
-                    if(formula[i][k] > 0)
-                        clause_num_appear_positive[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
-                    else
-                        clause_num_appear_negative[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
-                }
-                else
-                {
-                    clause_num_appear_negative[abs(formula[i][j])-1][abs(formula[i][k])-1]++;
-                    if (formula[i][k] < 0)
-                        clause_num_appear_negative[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
-                    else
-                        clause_num_appear_positive[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
-                }
+                threads.push_back(thread(&Predictor::countNumOfAppearenceNegativeOrPositive, this,
+                                                    i, j, begin, step,
+                                                    clause_num_appear_positive,
+                                                    clause_num_appear_negative));
+
+                begin += step;
             }
+
+            threads.push_back(thread(&Predictor::countNumOfAppearenceNegativeOrPositive, this,
+                                                i, j, begin, formulaLength[i] - begin,
+                                                clause_num_appear_positive,
+                                                clause_num_appear_negative));
+
+            for (int iterator = 0; iterator < NUM_OF_THREADS; ++iterator)
+            {
+                threads[iterator].join();
+            }
+            //end of time consuming part
+
+//            for (unsigned iterator = 0; iterator < NUM_OF_THREADS - 1; ++iterator)
+//            {
+//                countNumOfAppearenceNegativeOrPositive(i, j, begin, step,
+//                        clause_num_appear_positive, clause_num_appear_negative);
+
+//                begin += step;
+//            }
+//            countNumOfAppearenceNegativeOrPositive(i, j, begin, formulaLength[i] - begin,
+//                    clause_num_appear_positive, clause_num_appear_negative);
+
+            //time consuming part - statistics second part
+//            for (int k = j+1; k < formulaLength[i]; k++)
+//            {
+//                if (formula[i][j] > 0)
+//                {
+//                    clause_num_appear_positive[abs(formula[i][j])-1][abs(formula[i][k])-1]++;
+//                    if(formula[i][k] > 0)
+//                        clause_num_appear_positive[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+//                    else
+//                        clause_num_appear_negative[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+//                }
+//                else
+//                {
+//                    clause_num_appear_negative[abs(formula[i][j])-1][abs(formula[i][k])-1]++;
+//                    if (formula[i][k] < 0)
+//                        clause_num_appear_negative[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+//                    else
+//                        clause_num_appear_positive[abs(formula[i][k])-1][abs(formula[i][j])-1]++;
+//                }
+//            }
 
 
             length_appear[static_cast<unsigned>(abs(formula[i][j]))-1].push_back(formulaLength[i]);
@@ -385,31 +447,31 @@ void Predictor::initializeStatistics()
     cout << "Statistics: " << static_cast<double>(end - begin) / CLOCKS_PER_SEC << "s" << endl;
     begin = clock();
 
-//    cout << "Duzina pojavljivanja" << endl;
-//    printVectorOfVectors(length_appear);
-//    cout << "Duzina pojavljivanja pozitivno" << endl;
-//    printVectorOfVectors(length_appear_positive);
-//    cout << "Duzina pojavljivanja negativno" << endl;
-//    printVectorOfVectors(length_appear_negative);
+    cout << "Duzina pojavljivanja" << endl;
+    printVectorOfVectors(length_appear);
+    cout << "Duzina pojavljivanja pozitivno" << endl;
+    printVectorOfVectors(length_appear_positive);
+    cout << "Duzina pojavljivanja negativno" << endl;
+    printVectorOfVectors(length_appear_negative);
 
-//    cout << "U koliko se pojavljuje" << endl;
-//    printArrayOfArray(clause_num_appear, variables, variables);
-//    cout << "U koliko se pojavljuje pozitivan" << endl;
-//    printArrayOfArray(clause_num_appear_positive, variables, variables);
-//    cout << "U koliko se pojavljuje negativan" << endl;
-//    printArrayOfArray(clause_num_appear_negative, variables, variables);
+    cout << "U koliko se pojavljuje" << endl;
+    printArrayOfArray(clause_num_appear, variables, variables);
+    cout << "U koliko se pojavljuje pozitivan" << endl;
+    printArrayOfArray(clause_num_appear_positive, variables, variables);
+    cout << "U koliko se pojavljuje negativan" << endl;
+    printArrayOfArray(clause_num_appear_negative, variables, variables);
 
-//    cout << "Polaritet" << endl;
-//    printVectorOfVectors(polarity);
+    cout << "Polaritet" << endl;
+    printVectorOfVectors(polarity);
 
-//    cout << "Binarne" << endl;
-//    printArray(binary_clauses, variables);
+    cout << "Binarne" << endl;
+    printArray(binary_clauses, variables);
 
-//    cout << "Hornove" << endl;
-//    printArray(horn_clauses, variables);
+    cout << "Hornove" << endl;
+    printArray(horn_clauses, variables);
 
-//    cout << "Hornove u zakljucku" << endl;
-//    printArray(horn_clauses_implicate, variables);
+    cout << "Hornove u zakljucku" << endl;
+    printArray(horn_clauses_implicate, variables);
 
 
     //release memory

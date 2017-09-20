@@ -13,8 +13,12 @@
 #include <exception>
 #include <sstream>
 #include <cstdio>
+#include <thread>
 
 using namespace std;
+
+//broj niti koji rade na racunu
+#define NUM_OF_THREADS 8
 
 //Prosek, minimum, maksimum, koeficijent varijacije, entropija, nakrivljenost i tezina repova
 struct Statistics
@@ -87,11 +91,15 @@ private:
     void initializeStatistics();
     void freeMemory(void** pointer);
     void freeObjectMemory();
+    void countNumOfAppearenceNegativeOrPositive(unsigned i, unsigned j,
+                                         int begin, int step,
+                                         int** clause_num_appear_positive,
+                                         int** clause_num_appear_negative);
 
     //whole formula in cnf
     //vector<vector<int> > formula;
     int** formula = NULL;
-    int* formulaLength = NULL;
+    unsigned* formulaLength = NULL;
 
     //Statistike duzina klauza u kojima se promenljiva pojavljuje, duzina niza je broj promenljivih
     Statistics* clauseLengthStatistics = NULL;
