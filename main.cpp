@@ -17,7 +17,7 @@ int main()
     clock_t begin = clock(), end;
     vector<int> sample = {1,-25,2,3,6,5,-7,75,12,369,-852,5};
     vector<int> sampleSecond = {5,7,8,3,1,5};
-    int sample1[6] = {1,1,2,3,6,5};
+    //int sample1[6] = {1,1,2,3,6,5};
     Statistics a;
 //    Predictor b = Predictor("../example.txt");
 //    b.printFormula();
@@ -26,7 +26,8 @@ int main()
     //getcwd(cwd, sizeof(cwd));
     //printf("Current working dir: %s\n", cwd);
 
-    Predictor b = Predictor("../example_ubuntu.txt");
+    Predictor b = Predictor("../test_examples/example_ubuntu.txt");
+    //Predictor b = Predictor("../test_examples/example.txt");
     //Predictor b = Predictor("C:\\Users\\nevidjen\\Desktop\\Master\\knfV1\\flat50-904.cnf");
     //cout << "Formula: " << endl;
     //b.printFormula();

@@ -267,7 +267,7 @@ void Predictor::initializeStatistics()
     {
         int numOfPositiveAppereance = 0, positiveVariable = 0;
 
-        for (int j = 0; j < formulaLength[i]; j++)
+        for (unsigned j = 0; j < formulaLength[i]; j++)
         {
             //check if it's horn clause
             if (formula[i][j] > 0)
@@ -277,7 +277,7 @@ void Predictor::initializeStatistics()
             }
 
             //time consuming part - statistics second part
-            for (int k = j+1; k < formulaLength[i]; k++)
+            for (unsigned k = j+1; k < formulaLength[i]; k++)
             {
                 if (formula[i][j] > 0)
                 {
@@ -314,7 +314,7 @@ void Predictor::initializeStatistics()
         //binary
         if (formulaLength[i] == 2)
         {
-            for (int k = 0; k < formulaLength[i]; k++)
+            for (unsigned k = 0; k < formulaLength[i]; k++)
             {
                 binary_clauses[abs(formula[i][k]) - 1]++;
             }
@@ -323,7 +323,7 @@ void Predictor::initializeStatistics()
         //horn
         if (numOfPositiveAppereance == 1 && formulaLength[i] > 1)
         {
-            for (int k = 0; k < formulaLength[i]; k++)
+            for (unsigned k = 0; k < formulaLength[i]; k++)
             {
                 horn_clauses[abs(formula[i][k])-1]++;
             }
@@ -620,7 +620,7 @@ void Predictor::printFormula()
     if(formula != NULL && formulaLength != NULL)
         for(unsigned i = 0; i < clauses; i++)
         {
-            for(int j = 0; j < formulaLength[i]; j++)
+            for(unsigned j = 0; j < formulaLength[i]; j++)
             {
                 cout << formula[i][j] << "; ";
             }

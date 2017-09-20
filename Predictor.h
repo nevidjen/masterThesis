@@ -91,7 +91,7 @@ private:
     //whole formula in cnf
     //vector<vector<int> > formula;
     int** formula = NULL;
-    int* formulaLength = NULL;
+    unsigned* formulaLength = NULL;
 
     //Statistike duzina klauza u kojima se promenljiva pojavljuje, duzina niza je broj promenljivih
     Statistics* clauseLengthStatistics = NULL;
