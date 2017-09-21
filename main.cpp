@@ -22,9 +22,9 @@ int main()
 //    Predictor b = Predictor("../example.txt");
 //    b.printFormula();
 
-    //char cwd[1024];
-    //getcwd(cwd, sizeof(cwd));
-    //printf("Current working dir: %s\n", cwd);
+//    char cwd[1024];
+//    getcwd(cwd, sizeof(cwd));
+//    printf("Current working dir: %s\n", cwd);
 
     Predictor b = Predictor("../test_examples/example_ubuntu.txt");
     //Predictor b = Predictor("../test_examples/example.txt");

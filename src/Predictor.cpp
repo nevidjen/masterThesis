@@ -757,5 +757,3 @@ double Predictor::computeCorelation(vector<int> array1, vector<int> array2)
 
     return sumUp / (sumArray1Down * sumArray2Down);
 }
-
-

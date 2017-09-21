@@ -13,6 +13,7 @@
 #include <exception>
 #include <sstream>
 #include <cstdio>
+#include <climits>
 
 using namespace std;
 
